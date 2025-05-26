@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dual IPFS Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #fff;
+        }
+        .section {
+            background: #2a2a2a;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .success {
+            color: #4caf50;
+        }
+        .error {
+            color: #f44336;
+        }
+        pre {
+            background: #333;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin: 10px 0;
+            background: #333;
+            color: #fff;
+            border: 1px solid #555;
+            border-radius: 4px;
+        }
+        button {
+            background: #d81f2a;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #b71c1c;
+        }
+    </style>
+</head>
+<body>
+    <h1>Dual IPFS Verification</h1>
+    
+    <div class="section">
+        <h2>Component Registration Event Data</h2>
+        <pre>
+Component ID: 2
+Title: "Dual IFPS Test"
+Hashed Reference: "cid_ce91206eb2cc01a0c2ecc78e1f"
+Seller: 0x1cbaa3550cfcdf0d04170ec80af4236829e33ef2c654d013574c3a4d7efdd19
+        </pre>
+    </div>
+
+    <div class="section">
+        <h2>Test Metadata CID</h2>
+        <input type="text" id="metadataCid" placeholder="Enter metadata CID to test" value="">
+        <button onclick="fetchMetadata()">Fetch Metadata</button>
+    </div>
+
+    <div class="section">
+        <h2>Results</h2>
+        <div id="results"></div>
+    </div>
+
+    <script>
+        // Known test CIDs from recent uploads
+        const testCids = [
+            'QmPXME1oRtoT627YKaDPDQ3PwA8tdP9rWuAAweLzqSwAWT', // Example CID
+        ];
+
+        async function fetchMetadata() {
+            const resultsDiv = document.getElementById('results');
+            const cidInput = document.getElementById('metadataCid');
+            const cid = cidInput.value.trim();
+            
+            if (!cid) {
+                resultsDiv.innerHTML = '<p class="error">Please enter a CID</p>';
+                return;
+            }
+            
+            resultsDiv.innerHTML = '<p>Fetching metadata...</p>';
+            
+            try {
+                // Try multiple IPFS gateways
+                const gateways = [
+                    `https://gateway.pinata.cloud/ipfs/${cid}`,
+                    `https://ipfs.io/ipfs/${cid}`,
+                    `https://cloudflare-ipfs.com/ipfs/${cid}`
+                ];
+                
+                let metadata = null;
+                let successGateway = null;
+                
+                for (const gateway of gateways) {
+                    try {
+                        console.log(`Trying gateway: ${gateway}`);
+                        const response = await fetch(gateway);
+                        if (response.ok) {
+                            const contentType = response.headers.get('content-type');
+                            if (contentType && contentType.includes('application/json')) {
+                                metadata = await response.json();
+                                successGateway = gateway;
+                                break;
+                            } else {
+                                throw new Error(`Not JSON content: ${contentType}`);
+                            }
+                        }
+                    } catch (err) {
+                        console.error(`Gateway ${gateway} failed:`, err);
+                    }
+                }
+                
+                if (metadata) {
+                    resultsDiv.innerHTML = `
+                        <h3 class="success">✅ Metadata Retrieved Successfully!</h3>
+                        <p><strong>Gateway:</strong> ${successGateway}</p>
+                        <h4>Component Information:</h4>
+                        <pre>${JSON.stringify(metadata.component, null, 2)}</pre>
+                        <h4>Encrypted Content Information:</h4>
+                        <pre>${JSON.stringify(metadata.encrypted, null, 2)}</pre>
+                        <h4>Full Metadata:</h4>
+                        <pre>${JSON.stringify(metadata, null, 2)}</pre>
+                        
+                        <h3 class="success">🎯 Dual IPFS Approach Verified!</h3>
+                        <ul>
+                            <li>✅ Description is preserved: "${metadata.component?.description?.substring(0, 50)}..."</li>
+                            <li>✅ Encrypted content CID referenced: ${metadata.encrypted?.contentCID}</li>
+                            <li>✅ All metadata accessible</li>
+                        </ul>
+                    `;
+                } else {
+                    resultsDiv.innerHTML = `
+                        <h3 class="error">❌ Failed to fetch metadata</h3>
+                        <p>Could not retrieve metadata from any gateway. This might be:</p>
+                        <ul>
+                            <li>Invalid CID</li>
+                            <li>Content not yet propagated</li>
+                            <li>Not a metadata file</li>
+                        </ul>
+                    `;
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <h3 class="error">❌ Error</h3>
+                    <pre>${error.message}</pre>
+                `;
+            }
+        }
+
+        // Auto-search for recent uploads on load
+        window.onload = async function() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<p>Searching for recent metadata uploads...</p>';
+            
+            // Since we can't list Pinata uploads without auth, we'll need to manually test
+            // In a real scenario, you would have the metadata CID from the upload process
+            resultsDiv.innerHTML = `
+                <p>To verify the dual IPFS approach:</p>
+                <ol>
+                    <li>Find the metadata CID from your recent upload (check browser console or upload logs)</li>
+                    <li>Enter it in the input field above</li>
+                    <li>Click "Fetch Metadata" to see the preserved description and content reference</li>
+                </ol>
+                <p>The metadata CID should be different from the hashed reference stored on-chain.</p>
+            `;
+        };
+    </script>
+</body>
+</html> 

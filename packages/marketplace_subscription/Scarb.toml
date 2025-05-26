@@ -1,0 +1,12 @@
+[package]
+name = "marketplace_subscription"
+version = "1.2.0"
+edition = "2023_10"
+
+[dependencies]
+starknet = ">=2.4.3"
+common = { path = "../common" }
+
+[[target.starknet-contract]]
+sierra = true
+casm = true 

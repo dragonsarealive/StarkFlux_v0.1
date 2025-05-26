@@ -1,0 +1,1 @@
+{"version":1,"contracts":[{"id":"431b7ths9133i","package_name":"identity_registry","contract_name":"IdentityRegistry","module_path":"identity_registry::identity_registry::IdentityRegistry","artifacts":{"sierra":"identity_registry_IdentityRegistry.contract_class.json","casm":"identity_registry_IdentityRegistry.compiled_contract_class.json"}}]}

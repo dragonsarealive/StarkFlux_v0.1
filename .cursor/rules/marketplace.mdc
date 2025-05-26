@@ -1,0 +1,77 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Starknet Dev-Components Marketplace Guide
+
+## Project Overview
+This project implements a decentralized marketplace for Starknet developer components with four core Cairo 1.1 smart contracts:
+
+1. **ComponentRegistryV2**: Foundation contract for component listings, purchases, and pricing
+2. **IdentityRegistry**: Maps developer addresses to unique IDs, tracks uploads and sales
+3. **MarketplaceSubscription**: Provides marketplace-wide subscription with reward distribution
+4. **DevSubscription**: Enables subscribing to specific developer's content
+
+## Monetization Paths
+The system supports four distinct monetization paths:
+
+1. **Direct Purchase** (80/10/10 split)
+2. **Marketplace Subscription** (45/45/10 split)
+3. **Developer Subscription** (80/10/10 split)
+4. **FREE Components** (Zero price, no fees)
+
+## Key Files and Navigation
+
+### Core Contracts
+- [src/component_registry_v2.cairo](mdc:starknet-dev-components-marketplace/src/component_registry_v2.cairo): Base registry contract
+- [src/identity_registry.cairo](mdc:starknet-dev-components-marketplace/src/identity_registry.cairo): Developer identity tracking
+- [src/marketplace_subscription.cairo](mdc:starknet-dev-components-marketplace/src/marketplace_subscription.cairo): Global subscription system
+- [src/dev_subscription.cairo](mdc:starknet-dev-components-marketplace/src/dev_subscription.cairo): Developer-specific subscriptions
+
+### Shared Resources
+- [src/interfaces.cairo](mdc:starknet-dev-components-marketplace/src/interfaces.cairo): Contract interfaces
+- [src/types.cairo](mdc:starknet-dev-components-marketplace/src/types.cairo): Shared data structures
+- [src/math_utils.cairo](mdc:starknet-dev-components-marketplace/src/math_utils.cairo): Utility functions
+- [src/lib.cairo](mdc:starknet-dev-components-marketplace/src/lib.cairo): Module declarations
+
+### Configuration
+- [Scarb.toml](mdc:starknet-dev-components-marketplace/Scarb.toml): Project configuration for Cairo/Starknet
+
+## Cairo Patterns and Practices
+
+### Contract Structure
+1. **Import section**: Includes contract dependencies and shared resources
+2. **Constants**: Error codes, scaling factors, and configuration values
+3. **Events**: Event enums and structs for blockchain events
+4. **Storage**: Contract state variables
+5. **Constructor**: Initialization function with parameter validation
+6. **External API**: Public functions exposed via ABI
+7. **Internal helpers**: Private utility functions
+
+### Access Control Pattern
+- Owner-only functions use `_only_owner` helper
+- Contract-only functions check caller address
+- Developer-specific functions use `_check_developer_owner`
+
+### Fee Distribution Pattern
+- Direct purchases: 80/10/10 (seller/platform/liquidity)
+- Developer subscriptions: 80/10/10 (developer/platform/liquidity)
+- Marketplace subscriptions: 45/45/10 (reward pool/platform/liquidity)
+
+### FREE Component Pattern
+- Components can be marked with ACCESS_FLAGS::FREE (8)
+- FREE flag cannot be combined with other monetization flags
+- FREE components must have zero price
+- FREE components cannot be purchased
+
+### Oracle-Based USD Pricing
+- Uses Pragma Oracle for USD-to-STRK conversion
+- OraclePriceCfg struct stores USD price and oracle feed key
+- _usd_to_strk helper function handles conversion with validation
+
+## Compilation and Testing
+- Compile with `scarb build`
+- Use Starknet Foundry (`snforge`) for testing
+
+- Follow iterative development approach (code small, compile, repeat)

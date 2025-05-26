@@ -1,0 +1,13 @@
+{
+  "name": "starknet-deployment",
+  "version": "1.0.0",
+  "description": "Deployment script for Starknet contracts",
+  "main": "deploy_with_js.js",
+  "scripts": {
+    "deploy": "node deploy_with_js.js"
+  },
+  "dependencies": {
+    "@ethereumjs/wallet": "^10.0.0",
+    "starknet": "^5.14.1"
+  }
+}

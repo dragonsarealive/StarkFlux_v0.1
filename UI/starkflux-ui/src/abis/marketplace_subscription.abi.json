@@ -1,0 +1,443 @@
+[
+  {
+    "type": "impl",
+    "name": "MarketplaceSubscriptionImpl",
+    "interface_name": "common::interfaces::IMarketplaceSubscription"
+  },
+  {
+    "type": "struct",
+    "name": "core::integer::u256",
+    "members": [
+      {
+        "name": "low",
+        "type": "core::integer::u128"
+      },
+      {
+        "name": "high",
+        "type": "core::integer::u128"
+      }
+    ]
+  },
+  {
+    "type": "enum",
+    "name": "core::bool",
+    "variants": [
+      {
+        "name": "False",
+        "type": "()"
+      },
+      {
+        "name": "True",
+        "type": "()"
+      }
+    ]
+  },
+  {
+    "type": "interface",
+    "name": "common::interfaces::IMarketplaceSubscription",
+    "items": [
+      {
+        "type": "function",
+        "name": "subscribe",
+        "inputs": [],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "type": "function",
+        "name": "record_download",
+        "inputs": [
+          {
+            "name": "wallet",
+            "type": "core::starknet::contract_address::ContractAddress"
+          },
+          {
+            "name": "component_id",
+            "type": "core::integer::u64"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "type": "function",
+        "name": "start_new_epoch",
+        "inputs": [],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "type": "function",
+        "name": "set_subscription_fee",
+        "inputs": [
+          {
+            "name": "new_fee",
+            "type": "core::integer::u256"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "type": "function",
+        "name": "set_subscription_fee_usd",
+        "inputs": [
+          {
+            "name": "price_usd_micros",
+            "type": "core::integer::u256"
+          },
+          {
+            "name": "price_feed_key",
+            "type": "core::felt252"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "type": "function",
+        "name": "set_oracle_max_staleness",
+        "inputs": [
+          {
+            "name": "new_staleness",
+            "type": "core::integer::u64"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "type": "function",
+        "name": "set_owner",
+        "inputs": [
+          {
+            "name": "new_owner",
+            "type": "core::starknet::contract_address::ContractAddress"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "type": "function",
+        "name": "transfer_ownership",
+        "inputs": [
+          {
+            "name": "new_owner",
+            "type": "core::starknet::contract_address::ContractAddress"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "type": "function",
+        "name": "accept_ownership",
+        "inputs": [],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "type": "function",
+        "name": "is_subscribed",
+        "inputs": [
+          {
+            "name": "user",
+            "type": "core::starknet::contract_address::ContractAddress"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "core::bool"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "type": "function",
+        "name": "get_subscription_expiry",
+        "inputs": [
+          {
+            "name": "user",
+            "type": "core::starknet::contract_address::ContractAddress"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "core::integer::u64"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "type": "function",
+        "name": "get_subscription_fee",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "core::integer::u256"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "type": "function",
+        "name": "get_price_usd",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "core::integer::u256"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "type": "function",
+        "name": "get_current_epoch",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "core::integer::u64"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "type": "function",
+        "name": "get_reward_pool",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "core::integer::u256"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "type": "function",
+        "name": "get_epoch_info",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "(core::integer::u64, core::integer::u64, core::integer::u64)"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "type": "function",
+        "name": "get_owner",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "core::starknet::contract_address::ContractAddress"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "type": "function",
+        "name": "get_version",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "core::felt252"
+          }
+        ],
+        "state_mutability": "view"
+      }
+    ]
+  },
+  {
+    "type": "constructor",
+    "name": "constructor",
+    "inputs": [
+      {
+        "name": "subscription_fee",
+        "type": "core::integer::u256"
+      },
+      {
+        "name": "price_usd_micros",
+        "type": "core::integer::u256"
+      },
+      {
+        "name": "price_feed_key",
+        "type": "core::felt252"
+      },
+      {
+        "name": "strk_token",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "name": "pragma_oracle",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "name": "liquidity_vault",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "name": "marketplace_vault",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "name": "component_registry",
+        "type": "core::starknet::contract_address::ContractAddress"
+      }
+    ]
+  },
+  {
+    "type": "event",
+    "name": "marketplace_subscription::marketplace_subscription::MarketplaceSubscription::Subscribed",
+    "kind": "struct",
+    "members": [
+      {
+        "name": "user",
+        "type": "core::starknet::contract_address::ContractAddress",
+        "kind": "key"
+      },
+      {
+        "name": "expiry",
+        "type": "core::integer::u64",
+        "kind": "data"
+      }
+    ]
+  },
+  {
+    "type": "event",
+    "name": "marketplace_subscription::marketplace_subscription::MarketplaceSubscription::DownloadRecorded",
+    "kind": "struct",
+    "members": [
+      {
+        "name": "user",
+        "type": "core::starknet::contract_address::ContractAddress",
+        "kind": "key"
+      },
+      {
+        "name": "component_id",
+        "type": "core::integer::u64",
+        "kind": "key"
+      },
+      {
+        "name": "weight",
+        "type": "core::integer::u128",
+        "kind": "data"
+      }
+    ]
+  },
+  {
+    "type": "event",
+    "name": "marketplace_subscription::marketplace_subscription::MarketplaceSubscription::EpochStarted",
+    "kind": "struct",
+    "members": [
+      {
+        "name": "epoch_id",
+        "type": "core::integer::u64",
+        "kind": "key"
+      },
+      {
+        "name": "start_ts",
+        "type": "core::integer::u64",
+        "kind": "data"
+      }
+    ]
+  },
+  {
+    "type": "event",
+    "name": "marketplace_subscription::marketplace_subscription::MarketplaceSubscription::RewardPaid",
+    "kind": "struct",
+    "members": [
+      {
+        "name": "component_id",
+        "type": "core::integer::u64",
+        "kind": "key"
+      },
+      {
+        "name": "seller",
+        "type": "core::starknet::contract_address::ContractAddress",
+        "kind": "data"
+      },
+      {
+        "name": "amount",
+        "type": "core::integer::u256",
+        "kind": "data"
+      },
+      {
+        "name": "epoch_id",
+        "type": "core::integer::u64",
+        "kind": "data"
+      }
+    ]
+  },
+  {
+    "type": "event",
+    "name": "marketplace_subscription::marketplace_subscription::MarketplaceSubscription::OwnershipTransferred",
+    "kind": "struct",
+    "members": [
+      {
+        "name": "previous_owner",
+        "type": "core::starknet::contract_address::ContractAddress",
+        "kind": "data"
+      },
+      {
+        "name": "new_owner",
+        "type": "core::starknet::contract_address::ContractAddress",
+        "kind": "data"
+      }
+    ]
+  },
+  {
+    "type": "event",
+    "name": "marketplace_subscription::marketplace_subscription::MarketplaceSubscription::OwnershipTransferStarted",
+    "kind": "struct",
+    "members": [
+      {
+        "name": "previous_owner",
+        "type": "core::starknet::contract_address::ContractAddress",
+        "kind": "data"
+      },
+      {
+        "name": "new_owner",
+        "type": "core::starknet::contract_address::ContractAddress",
+        "kind": "data"
+      }
+    ]
+  },
+  {
+    "type": "event",
+    "name": "marketplace_subscription::marketplace_subscription::MarketplaceSubscription::Event",
+    "kind": "enum",
+    "variants": [
+      {
+        "name": "Subscribed",
+        "type": "marketplace_subscription::marketplace_subscription::MarketplaceSubscription::Subscribed",
+        "kind": "nested"
+      },
+      {
+        "name": "DownloadRecorded",
+        "type": "marketplace_subscription::marketplace_subscription::MarketplaceSubscription::DownloadRecorded",
+        "kind": "nested"
+      },
+      {
+        "name": "EpochStarted",
+        "type": "marketplace_subscription::marketplace_subscription::MarketplaceSubscription::EpochStarted",
+        "kind": "nested"
+      },
+      {
+        "name": "RewardPaid",
+        "type": "marketplace_subscription::marketplace_subscription::MarketplaceSubscription::RewardPaid",
+        "kind": "nested"
+      },
+      {
+        "name": "OwnershipTransferred",
+        "type": "marketplace_subscription::marketplace_subscription::MarketplaceSubscription::OwnershipTransferred",
+        "kind": "nested"
+      },
+      {
+        "name": "OwnershipTransferStarted",
+        "type": "marketplace_subscription::marketplace_subscription::MarketplaceSubscription::OwnershipTransferStarted",
+        "kind": "nested"
+      }
+    ]
+  }
+]

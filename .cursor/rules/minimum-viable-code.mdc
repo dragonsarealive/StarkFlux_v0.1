@@ -1,0 +1,26 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+Can be called with @MVCRule  
+
+When developing Smart Contracts always use the Minimum Viable Code strategy, compile after each code edit. It is important you see this as iterative coding growing, so you MUST compile constantly to verify. progress. 
+
+Code small, compile, loop until finished. 
+
+Algorithm for issue resolution: 
+
+1. Code no more than 30 lines. 
+2. Make sure the smart contract compile. 
+3. If it doesn't compile attempt fixing it. 
+4. After Three attemps if unabled to fix, ask the user for guidance explaining what you did and asking clarifying questions. 
+5. If it compiles, move on to the next code block. 
+
+
+
+
+
+
+
+

@@ -1,0 +1,285 @@
+[
+  {
+    "type": "impl",
+    "name": "DevSubscriptionImpl",
+    "interface_name": "common::interfaces::IDevSubscription"
+  },
+  {
+    "type": "enum",
+    "name": "core::bool",
+    "variants": [
+      {
+        "name": "False",
+        "type": "()"
+      },
+      {
+        "name": "True",
+        "type": "()"
+      }
+    ]
+  },
+  {
+    "type": "struct",
+    "name": "core::integer::u256",
+    "members": [
+      {
+        "name": "low",
+        "type": "core::integer::u128"
+      },
+      {
+        "name": "high",
+        "type": "core::integer::u128"
+      }
+    ]
+  },
+  {
+    "type": "interface",
+    "name": "common::interfaces::IDevSubscription",
+    "items": [
+      {
+        "type": "function",
+        "name": "subscribe",
+        "inputs": [
+          {
+            "name": "dev_id",
+            "type": "core::integer::u64"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "type": "function",
+        "name": "is_subscribed",
+        "inputs": [
+          {
+            "name": "user",
+            "type": "core::starknet::contract_address::ContractAddress"
+          },
+          {
+            "name": "dev_id",
+            "type": "core::integer::u64"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "core::bool"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "type": "function",
+        "name": "set_price",
+        "inputs": [
+          {
+            "name": "dev_id",
+            "type": "core::integer::u64"
+          },
+          {
+            "name": "price",
+            "type": "core::integer::u256"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "type": "function",
+        "name": "set_price_usd",
+        "inputs": [
+          {
+            "name": "dev_id",
+            "type": "core::integer::u64"
+          },
+          {
+            "name": "price_usd_micros",
+            "type": "core::integer::u256"
+          },
+          {
+            "name": "price_feed_key",
+            "type": "core::felt252"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "type": "function",
+        "name": "get_price",
+        "inputs": [
+          {
+            "name": "dev_id",
+            "type": "core::integer::u64"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "core::integer::u256"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "type": "function",
+        "name": "get_price_usd",
+        "inputs": [
+          {
+            "name": "dev_id",
+            "type": "core::integer::u64"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "core::integer::u256"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "type": "function",
+        "name": "get_subscription_expiry",
+        "inputs": [
+          {
+            "name": "user",
+            "type": "core::starknet::contract_address::ContractAddress"
+          },
+          {
+            "name": "dev_id",
+            "type": "core::integer::u64"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "core::integer::u64"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "type": "function",
+        "name": "get_version",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "core::felt252"
+          }
+        ],
+        "state_mutability": "view"
+      }
+    ]
+  },
+  {
+    "type": "constructor",
+    "name": "constructor",
+    "inputs": [
+      {
+        "name": "identity_registry",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "name": "platform_treasury",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "name": "liquidity_vault",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "name": "strk_token",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "name": "pragma_oracle_address",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "name": "component_registry",
+        "type": "core::starknet::contract_address::ContractAddress"
+      }
+    ]
+  },
+  {
+    "type": "event",
+    "name": "dev_subscription::dev_subscription::DevSubscription::Subscribed",
+    "kind": "struct",
+    "members": [
+      {
+        "name": "user",
+        "type": "core::starknet::contract_address::ContractAddress",
+        "kind": "key"
+      },
+      {
+        "name": "dev_id",
+        "type": "core::integer::u64",
+        "kind": "key"
+      },
+      {
+        "name": "expiry",
+        "type": "core::integer::u64",
+        "kind": "data"
+      }
+    ]
+  },
+  {
+    "type": "event",
+    "name": "dev_subscription::dev_subscription::DevSubscription::PriceSet",
+    "kind": "struct",
+    "members": [
+      {
+        "name": "dev_id",
+        "type": "core::integer::u64",
+        "kind": "key"
+      },
+      {
+        "name": "price",
+        "type": "core::integer::u256",
+        "kind": "data"
+      }
+    ]
+  },
+  {
+    "type": "event",
+    "name": "dev_subscription::dev_subscription::DevSubscription::PriceUsdSet",
+    "kind": "struct",
+    "members": [
+      {
+        "name": "dev_id",
+        "type": "core::integer::u64",
+        "kind": "key"
+      },
+      {
+        "name": "price_usd_micros",
+        "type": "core::integer::u256",
+        "kind": "data"
+      },
+      {
+        "name": "price_feed_key",
+        "type": "core::felt252",
+        "kind": "data"
+      }
+    ]
+  },
+  {
+    "type": "event",
+    "name": "dev_subscription::dev_subscription::DevSubscription::Event",
+    "kind": "enum",
+    "variants": [
+      {
+        "name": "Subscribed",
+        "type": "dev_subscription::dev_subscription::DevSubscription::Subscribed",
+        "kind": "nested"
+      },
+      {
+        "name": "PriceSet",
+        "type": "dev_subscription::dev_subscription::DevSubscription::PriceSet",
+        "kind": "nested"
+      },
+      {
+        "name": "PriceUsdSet",
+        "type": "dev_subscription::dev_subscription::DevSubscription::PriceUsdSet",
+        "kind": "nested"
+      }
+    ]
+  }
+]

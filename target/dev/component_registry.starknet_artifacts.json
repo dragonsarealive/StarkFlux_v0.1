@@ -1,0 +1,1 @@
+{"version":1,"contracts":[{"id":"gm20rirrb2prg","package_name":"component_registry","contract_name":"ComponentRegistry","module_path":"component_registry::component_registry::ComponentRegistry","artifacts":{"sierra":"component_registry_ComponentRegistry.contract_class.json","casm":null}}]}

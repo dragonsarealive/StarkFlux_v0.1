@@ -1,0 +1,13 @@
+[package]
+name = "common"
+version = "1.1.0"
+edition = "2023_10"
+
+[dependencies]
+starknet = ">=2.4.3"
+
+# This is a library package, no contract output is needed
+# We explicitly specify that we don't want to generate Sierra/CASM output
+[lib]
+sierra = false
+casm = false 

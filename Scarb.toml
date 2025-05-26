@@ -1,0 +1,17 @@
+[workspace]
+members = [
+    "packages/common",
+    "packages/marketplace_subscription",
+    "packages/component_registry",
+    "packages/identity_registry",
+    "packages/dev_subscription",
+]
+
+[workspace.dependencies]
+starknet = ">=2.4.3"
+
+[workspace.tool.starknet]
+cairo-version = "2.4.3"
+
+[workspace.tool.fmt]
+sort-module-level-items = true

@@ -1,0 +1,94 @@
+# Artifacts folder - contains sensitive data not for GitHub
+/artifacts/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+*.env
+
+# Private keys and credentials
+*.key
+*.pem
+*.p12
+*.pfx
+keystore.json
+*_keystore.json
+
+# Deployment specific files
+deployment_addresses*.txt
+deployment_info*.txt
+*_deployment_info.txt
+updated_deployment_addresses.txt
+final_deployment_info.txt
+starknet_sepolia_deployment_checklist*.md
+
+# Build outputs
+target/
+dist/
+build/
+out/
+
+# Node modules
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+logs/
+*.log
+
+# Testing
+coverage/
+.nyc_output/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Cairo/Starknet specific
+*.sierra.json
+*.casm.json
+*.contract_class.json
+*.compiled_contract_class.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+venv/
+env/
+starknet_env/
+
+# OS files
+Thumbs.db
+desktop.ini
+
+# Backup files
+*.bak
+*.backup
+*_backup/
+
+# Local configuration
+local.config
+*.local.json
+
+# Downloaded files
+scarb-latest.zip
+starkli-x86_64-unknown-linux-gnu.tar.gz
+
+# Private keys
+starkli_private_key.txt 
