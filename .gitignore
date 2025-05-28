@@ -30,8 +30,6 @@ out/
 *~
 .DS_Store
 Thumbs.db
-.cursor/
-.cursorrules
 
 # Logs
 logs/
@@ -45,7 +43,6 @@ lerna-debug.log*
 # Package manager files
 .npm
 .yarn-integrity
-package-lock.json
 yarn.lock
 pnpm-lock.yaml
 
