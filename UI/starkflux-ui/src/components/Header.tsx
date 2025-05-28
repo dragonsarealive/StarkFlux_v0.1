@@ -87,82 +87,82 @@ const Header = () => {
         ⚠️ WARNING: TESTNET ONLY - Do not use real funds
       </div>
       
+    <div style={{
+      backdropFilter: 'blur(10px)',
+      WebkitBackdropFilter: 'blur(10px)',
+      backgroundColor: colors.glass,
+      color: colors.textPrimary,
+      padding: '15px 20px',
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      boxShadow: '0 4px 30px rgba(0, 0, 0, 0.15)',
+      position: 'sticky',
+      top: 0,
+      zIndex: 100,
+      borderBottom: `1px solid ${colors.glassBorder}`,
+    }}>
+      {/* Logo with title */}
       <div style={{
-        backdropFilter: 'blur(10px)',
-        WebkitBackdropFilter: 'blur(10px)',
-        backgroundColor: colors.glass,
-        color: colors.textPrimary,
-        padding: '15px 20px',
         display: 'flex',
-        justifyContent: 'space-between',
         alignItems: 'center',
-        boxShadow: '0 4px 30px rgba(0, 0, 0, 0.15)',
-        position: 'sticky',
-        top: 0,
-        zIndex: 100,
-        borderBottom: `1px solid ${colors.glassBorder}`,
+        gap: '12px',
       }}>
-        {/* Logo with title */}
-        <div style={{
+        <div style={{ 
+          position: 'relative',
           display: 'flex',
           alignItems: 'center',
-          gap: '12px',
+          justifyContent: 'center',
         }}>
-          <div style={{ 
-            position: 'relative',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
-            <div style={{
-              position: 'absolute',
-              width: '40px',
-              height: '40px',
-              borderRadius: '50%',
-              background: `radial-gradient(circle, rgba(216, 31, 42, 0.2) 0%, rgba(216, 31, 42, 0) 70%)`,
-              filter: 'blur(8px)',
-              opacity: 0.8,
-            }}></div>
-            <ModernDeerLogo />
-          </div>
-          
-          <h1 style={{ 
-            margin: 0,
-            fontWeight: '700',
-            letterSpacing: '0.5px',
-            textShadow: '0 0 10px rgba(216, 31, 42, 0.3)',
-            color: colors.textPrimary,
-            fontSize: '1.5rem',
-          }}>
-            STARKFLUX
-          </h1>
+          <div style={{
+            position: 'absolute',
+            width: '40px',
+            height: '40px',
+            borderRadius: '50%',
+            background: `radial-gradient(circle, rgba(216, 31, 42, 0.2) 0%, rgba(216, 31, 42, 0) 70%)`,
+            filter: 'blur(8px)',
+            opacity: 0.8,
+          }}></div>
+          <ModernDeerLogo />
         </div>
         
-        {/* Navigation */}
-        <div style={{ 
-          display: 'flex', 
-          gap: '4px', 
-          alignItems: 'center',
-          background: 'rgba(0, 0, 0, 0.15)',
-          padding: '4px',
-          borderRadius: '12px',
+        <h1 style={{ 
+          margin: 0,
+          fontWeight: '700',
+          letterSpacing: '0.5px',
+          textShadow: '0 0 10px rgba(216, 31, 42, 0.3)',
+          color: colors.textPrimary,
+          fontSize: '1.5rem',
         }}>
-          <NavLink to="/">Home</NavLink>
-          <NavLink to="/library">Library</NavLink>
-          <NavLink to="/register">Dev Profile</NavLink>
-          <NavLink to="/upload">Upload</NavLink>
-          
-          {/* Separator */}
-          <div style={{
-            width: '1px',
-            height: '24px',
-            backgroundColor: colors.glassBorder,
-            margin: '0 4px'
-          }}></div>
-          
-          <WalletConnectButton />
-        </div>
+          STARKFLUX
+        </h1>
       </div>
+      
+      {/* Navigation */}
+      <div style={{ 
+        display: 'flex', 
+        gap: '4px', 
+        alignItems: 'center',
+        background: 'rgba(0, 0, 0, 0.15)',
+        padding: '4px',
+        borderRadius: '12px',
+      }}>
+        <NavLink to="/">Home</NavLink>
+        <NavLink to="/library">Library</NavLink>
+        <NavLink to="/register">Dev Profile</NavLink>
+        <NavLink to="/upload">Upload</NavLink>
+        
+        {/* Separator */}
+        <div style={{
+          width: '1px',
+          height: '24px',
+          backgroundColor: colors.glassBorder,
+          margin: '0 4px'
+        }}></div>
+        
+        <WalletConnectButton />
+      </div>
+    </div>
     </>
   )
 }

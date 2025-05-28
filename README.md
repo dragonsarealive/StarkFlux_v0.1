@@ -1,103 +1,147 @@
-# StarkFlux - Component Marketplace for Starknet
+# StarkFlux - StarkNet Developer Components Marketplace
 
-StarkFlux is a decentralized marketplace for developer components on Starknet, enabling developers to monetize their code through multiple revenue models.
+StarkFlux is a decentralized marketplace for StarkNet developer components, enabling developers to monetize their code components while providing the community with reusable, high-quality building blocks.
 
 ## 🚀 Features
 
-- **Component Registry**: Upload and manage reusable code components
-- **Multiple Monetization Models**:
+- **Component Marketplace**: Browse, purchase, and download developer components
+- **Multiple Monetization Models**: 
   - Direct purchase (one-time payment)
-  - Marketplace subscription (global access pool)
-  - Developer subscription (access to all developer's content)
-- **IPFS Integration**: Decentralized storage for component metadata
-- **Smart Contract Architecture**: Fully on-chain marketplace logic
-- **Modern UI**: React-based interface with wallet integration
+  - Developer subscriptions (subscribe to specific developers)
+  - Marketplace subscriptions (access to all components)
+  - Free components
+- **Encrypted Storage**: Components are encrypted and stored on IPFS via Pinata
+- **Smart Contract Architecture**: Fully decentralized on StarkNet
+- **Modern UI**: React-based interface with real-time blockchain integration
 
-## 🏗️ Architecture
+## 📁 Project Structure
 
-### Smart Contracts (Cairo)
-- `ComponentRegistry`: Core registry for component management
-- `MarketplaceSubscription`: Global subscription system
-- `DeveloperSubscription`: Developer-specific subscriptions
-- `LiquidityPool`: Revenue sharing and liquidity management
+```
+starkflux/
+├── UI/                      # Frontend application
+│   └── starkflux-ui/       # React + TypeScript UI
+├── packages/               # Smart contracts
+│   ├── common/            # Shared interfaces and types
+│   ├── component_registry/ # Main marketplace contract
+│   ├── identity_registry/  # Developer identity management
+│   ├── dev_subscription/   # Developer subscription system
+│   └── marketplace_subscription/ # Global subscription system
+└── memory-bank/           # Project documentation
+```
 
-### Frontend (React + TypeScript)
-- Chakra UI for component library
-- Starknet.js for blockchain interaction
-- IPFS integration for metadata storage
-- Responsive design with dark mode support
+## 🛠️ Technology Stack
 
-## 🛠️ Tech Stack
-
-- **Smart Contracts**: Cairo 2.0
+- **Smart Contracts**: Cairo 1.0
 - **Frontend**: React, TypeScript, Vite
 - **UI Library**: Chakra UI
-- **Blockchain**: Starknet (Sepolia Testnet)
+- **Blockchain Integration**: starknet.js, starknet-react
 - **Storage**: IPFS (Pinata)
-- **Build Tools**: Scarb, Node.js
+- **Network**: StarkNet Sepolia Testnet
 
-## 📦 Installation
+## 🚦 Getting Started
 
 ### Prerequisites
-- Node.js 18+
-- Scarb (Cairo package manager)
+
+- Node.js 16+ and npm/yarn
+- Rust and Scarb (for smart contract development)
 - Git
 
-### Setup
+### Installation
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/dragonsarealive/StarkFlux_v0.1.git
-cd StarkFlux_v0.1
+git clone https://github.com/yourusername/starkflux.git
+cd starkflux
 ```
 
-2. Install smart contract dependencies:
-```bash
-scarb build
-```
-
-3. Install UI dependencies:
+2. Install UI dependencies:
 ```bash
 cd UI/starkflux-ui
 npm install
 ```
 
-4. Set up environment variables:
+3. Set up environment variables:
 ```bash
-cp .env.example .env
-# Edit .env with your configuration
+cp .env.example .env.local
+# Edit .env.local with your configuration
 ```
 
-## 🚀 Running Locally
-
-### Start the UI Development Server
+4. Start the development server:
 ```bash
-cd UI/starkflux-ui
 npm run dev
 ```
 
-The application will be available at `http://localhost:5173`
+### Smart Contract Development
 
-## 📝 Smart Contract Addresses (Sepolia Testnet)
+1. Navigate to the packages directory:
+```bash
+cd packages
+```
 
-⚠️ **Warning: Testnet Only** - This is a development version deployed on Sepolia testnet.
+2. Build contracts:
+```bash
+scarb build
+```
 
-See deployment documentation for current contract addresses.
+## 🔧 Configuration
+
+### Environment Variables
+
+Create a `.env.local` file in `UI/starkflux-ui/` with:
+
+```env
+VITE_PINATA_JWT=your_pinata_jwt_token
+VITE_STARKNET_ALCHEMY_KEY=your_alchemy_api_key
+```
+
+### Contract Addresses (Sepolia Testnet)
+
+The contracts are deployed on Sepolia testnet. See `UI/starkflux-ui/src/abis/contracts.ts` for addresses.
+
+## 📖 Documentation
+
+- [UI Development Guide](UI/StarkFlux_UI_Development_Guide.md)
+- [Smart Contract Architecture](memory-bank/systemPatterns.md)
+- [Technical Context](memory-bank/techContext.md)
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our contributing guidelines (coming soon).
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is under the **StarkFlux Source Available License v1.0** - see the [LICENSE](LICENSE) file for details.
 
-## 🔗 Links
+**Important**: This is NOT an open source license. The code is source-available for:
+- 🎓 Educational purposes
+- 🔬 Evaluation and testing
+- 🏆 Hackathon judging
+- 💡 Personal projects
 
-- [Documentation](docs/) (coming soon)
-- [Demo](https://starkflux.netlify.app) (testnet)
-- [Discord](https://discord.gg/starkflux) (coming soon)
+**Commercial use requires a separate license**. Contact us for commercial licensing options.
 
-## ⚠️ Disclaimer
+## 💼 Commercial Licensing
 
-This is an alpha version deployed on testnet. Do not use in production or with real funds. 
+Interested in using StarkFlux for your business? We offer flexible commercial licensing options. Please contact andres.cano@reapstudios.com for more information.
+
+## ⚠️ Security
+
+- Never commit private keys or sensitive data
+- Always use environment variables for secrets
+- Report security vulnerabilities to [security@starkflux.com]
+
+## 🌟 Acknowledgments
+
+- StarkNet community
+- Pragma Oracle for price feeds
+- Pinata for IPFS infrastructure
+
+---
+
+**Note**: This project is currently on testnet. Do not use real funds. 

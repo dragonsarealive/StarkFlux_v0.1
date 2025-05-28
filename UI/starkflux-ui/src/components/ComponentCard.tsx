@@ -260,37 +260,37 @@ const ComponentCard: React.FC<ComponentCardProps> = ({ component, onPurchase, on
         
         {/* Description */}
         <Box minH="40px">
-          {component.description ? (
-            <Text fontSize="sm" color={mutedColor} noOfLines={2}>
-              {component.description}
-            </Text>
-          ) : (
-            <SkeletonText noOfLines={2} spacing={2} />
-          )}
+        {component.description ? (
+          <Text fontSize="sm" color={mutedColor} noOfLines={2}>
+            {component.description}
+          </Text>
+        ) : (
+          <SkeletonText noOfLines={2} spacing={2} />
+        )}
         </Box>
         
         {/* Tags */}
         <Box minH="28px">
           {component.tags && component.tags.length > 0 ? (
-            <Wrap spacing={2}>
-              {component.tags.slice(0, 3).map((tag, index) => (
-                <WrapItem key={index}>
-                  <Tag size="sm" colorScheme="blue" variant="subtle">
-                    <TagLabel>{tag}</TagLabel>
-                  </Tag>
-                </WrapItem>
-              ))}
-              {component.tags.length > 3 && (
-                <WrapItem>
-                  <Tag size="sm" variant="ghost">
-                    <TagLabel>+{component.tags.length - 3}</TagLabel>
-                  </Tag>
-                </WrapItem>
-              )}
-            </Wrap>
+          <Wrap spacing={2}>
+            {component.tags.slice(0, 3).map((tag, index) => (
+              <WrapItem key={index}>
+                <Tag size="sm" colorScheme="blue" variant="subtle">
+                  <TagLabel>{tag}</TagLabel>
+                </Tag>
+              </WrapItem>
+            ))}
+            {component.tags.length > 3 && (
+              <WrapItem>
+                <Tag size="sm" variant="ghost">
+                  <TagLabel>+{component.tags.length - 3}</TagLabel>
+                </Tag>
+              </WrapItem>
+            )}
+          </Wrap>
           ) : (
             <Box />
-          )}
+        )}
         </Box>
         
         {/* Access badges */}
@@ -318,17 +318,17 @@ const ComponentCard: React.FC<ComponentCardProps> = ({ component, onPurchase, on
         <VStack spacing={2} align="stretch" mt="auto">
           {/* Always show price section for consistent height */}
           <Flex justify="space-between" align="center" minH="32px">
-            <Text fontSize="sm" color={mutedColor}>
-              Price:
-            </Text>
+              <Text fontSize="sm" color={mutedColor}>
+                Price:
+              </Text>
             <Text 
               fontSize="lg" 
               fontWeight="bold" 
               color={isFree ? freeColor : priceColor}
             >
-              {getPriceDisplay()}
-            </Text>
-          </Flex>
+                {getPriceDisplay()}
+              </Text>
+            </Flex>
           
           <Button
             colorScheme={buttonConfig.colorScheme}

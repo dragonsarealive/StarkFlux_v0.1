@@ -1,0 +1,556 @@
+// Version V1.1.0 - Sepolia Deployment
+#[starknet::contract]
+mod MarketplaceSubscription {
+    use starknet::{ContractAddress, get_caller_address, get_block_timestamp, get_contract_address};
+    use core::integer::{u8, u16, u64, u128, u256};
+    use starknet::storage::Map;
+    use core::traits::Into;
+    use core::cmp::max;
+    use core::zeroable::Zeroable;
+    use common::interfaces::IERC20Dispatcher;
+    use common::interfaces::IERC20DispatcherTrait;
+    use common::interfaces::IComponentRegistryExternalDispatcher;
+    use common::interfaces::IComponentRegistryExternalDispatcherTrait;
+    use common::interfaces::IPragmaOracleDispatcher;
+    use common::interfaces::IPragmaOracleDispatcherTrait;
+    use common::math_utils::{sqrt_u128, uint256_add, uint256_mul_u16, uint256_div_u16, u256_safe_mul, u256_safe_div, u256_from_u128, pow10_u256, get_oracle_power_of_10, usd_to_strk};
+    use common::types::{Component, OraclePriceCfg, AccessFlags};
+
+    // Error Constants
+    const ErrOracleDataInvalid: felt252 = 'ERR_ORACLE_DATA_INVALID';
+    const ErrClockError: felt252 = 'ERR_CLOCK_ERROR';
+    const ErrOraclePriceStale: felt252 = 'ERR_ORACLE_PRICE_STALE';
+    const ErrOraclePriceZero: felt252 = 'ERR_ORACLE_PRICE_ZERO';
+    const ErrPriceTooLarge: felt252 = 'ERR_PRICE_TOO_LARGE';
+    // Added in v1.1.0 - New error constant
+    const ErrInvalidVersionV110: felt252 = 'ERR_INVALID_VERSION_V110';
+
+    // Added in v1.1.0 - Contract version constant
+    const CONTRACT_VERSION: felt252 = 'v1.1.0';
+
+    // Oracle conversion constants
+    const STRK_SCALING_FACTOR_U256: u256 = u256 { low: 1_000_000_000_000_000_000, high: 0 }; // 10^18
+    const USD_MICROS_SCALING_FACTOR_U256: u256 = u256 { low: 1_000_000, high: 0 }; // 10^6
+
+    // Fee split constants (45/45/10)
+    const DEVELOPER_FEE_BPS: u16 = 4500;
+    const PLATFORM_FEE_BPS: u16 = 4500;
+    const LIQUIDITY_FEE_BPS: u16 = 1000;
+    const BASIS_POINT_DENOMINATOR: u16 = 10000;
+
+    // Default values for epochs
+    const DEFAULT_EPOCH_LENGTH: u64 = 2592000; // 30 days in seconds
+    const DEFAULT_GRACE_WINDOW: u64 = 21600;   // 6 hours in seconds
+    const DEFAULT_NEW_USER_BONUS: u8 = 2;      // 2x reward weight for first-time downloads
+    
+    #[storage]
+    struct Storage {
+        // Global subscription tracking
+        subscription_expiry: Map::<ContractAddress, u64>,
+        
+        // Download tracking per component per epoch
+        weighted_dl: Map::<(u64, u64), u128>, // (epoch, cid)
+        seen_this_epoch: Map::<(u64, ContractAddress, u64), bool>, // (epoch, wallet, cid)
+        first_time: Map::<(ContractAddress, u64), bool>,
+        
+        // Accounting
+        reward_pool_strk: u256,
+        
+        // Configuration
+        sub_fee_cfg: OraclePriceCfg, // Oracle price configuration 
+        sub_fee_strk: u256, // Cached STRK price fallback
+        strk_token: ContractAddress,
+        liquidity_vault: ContractAddress,
+        marketplace_vault: ContractAddress,
+        component_registry: ContractAddress,
+        pragma_oracle_address: ContractAddress, // Added oracle address
+        oracle_max_staleness: u64, // Added max staleness config
+        owner: ContractAddress,
+        pending_owner: ContractAddress, // Added for two-step ownership transfer
+        
+        // Epoch tracking
+        epoch_id: u64,
+        epoch_start_ts: u64,
+        epoch_length_secs: u64,
+        grace_window_secs: u64,
+        new_user_bonus: u8,
+        
+        // Added in v1.1.0 - Contract version
+        version: felt252,
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        Subscribed: Subscribed,
+        DownloadRecorded: DownloadRecorded,
+        EpochStarted: EpochStarted,
+        RewardPaid: RewardPaid,
+        OwnershipTransferred: OwnershipTransferred,
+        OwnershipTransferStarted: OwnershipTransferStarted,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct Subscribed {
+        user: ContractAddress,
+        expiry: u64,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct DownloadRecorded {
+        user: ContractAddress,
+        component_id: u64,
+        weight: u128,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct EpochStarted {
+        epoch_id: u64,
+        start_ts: u64,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct RewardPaid {
+        component_id: u64,
+        seller: ContractAddress,
+        amount: u256,
+        epoch_id: u64,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct OwnershipTransferred {
+        previous_owner: ContractAddress,
+        new_owner: ContractAddress,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct OwnershipTransferStarted {
+        previous_owner: ContractAddress,
+        new_owner: ContractAddress,
+    }
+
+    // Utility function for fee splitting
+    fn calculate_fee_share(amount: u256, basis_points: u16) -> u256 {
+        // Use math_utils to multiply and divide u256 by u16
+        uint256_div_u16(uint256_mul_u16(amount, basis_points), BASIS_POINT_DENOMINATOR)
+    }
+
+    #[constructor]
+    fn constructor(
+        ref self: ContractState,
+        subscription_fee: u256,
+        price_usd_micros: u256,
+        price_feed_key: felt252,
+        strk_token: ContractAddress,
+        pragma_oracle: ContractAddress,
+        liquidity_vault: ContractAddress,
+        marketplace_vault: ContractAddress,
+        component_registry: ContractAddress,
+    ) {
+        assert(!strk_token.is_zero(), 'Invalid STRK token');
+        assert(!pragma_oracle.is_zero(), 'Invalid oracle');
+        assert(!liquidity_vault.is_zero(), 'Invalid liquidity vault');
+        assert(!marketplace_vault.is_zero(), 'Invalid marketplace vault');
+        assert(!component_registry.is_zero(), 'Invalid registry');
+        
+        // Set core configuration
+        self.sub_fee_strk.write(subscription_fee);
+        self.sub_fee_cfg.write(OraclePriceCfg {
+            price_usd_micros: price_usd_micros,
+            price_feed_key: price_feed_key
+        });
+        self.strk_token.write(strk_token);
+        self.pragma_oracle_address.write(pragma_oracle);
+        self.oracle_max_staleness.write(600); // 10 minutes default
+        self.liquidity_vault.write(liquidity_vault);
+        self.marketplace_vault.write(marketplace_vault);
+        self.component_registry.write(component_registry);
+        self.owner.write(get_caller_address());
+        
+        // Set epoch defaults
+        self.epoch_length_secs.write(DEFAULT_EPOCH_LENGTH);
+        self.grace_window_secs.write(DEFAULT_GRACE_WINDOW);
+        self.new_user_bonus.write(DEFAULT_NEW_USER_BONUS);
+        
+        // Initialize epoch
+        self.epoch_id.write(1);
+        self.epoch_start_ts.write(get_block_timestamp());
+        self.reward_pool_strk.write(u256 { low: 0, high: 0 });
+        
+        // Added in v1.1.0 - Set version
+        self.version.write(CONTRACT_VERSION);
+    }
+
+    // Generate trait for internal functions
+    #[generate_trait]
+    impl MarketplaceSubscriptionInternalImpl of MarketplaceSubscriptionInternalTrait {
+        /// Internal helper: Converts USD price to STRK using oracle data
+        fn _usd_to_strk(self: @ContractState, cfg: OraclePriceCfg) -> u256 {
+            // Use the centralized usd_to_strk function from math_utils
+            usd_to_strk(
+                self.pragma_oracle_address.read(),
+                cfg,
+                self.oracle_max_staleness.read()
+            )
+        }
+        
+        /// Internal helper: Handles subscription payment with 45/45/10 fee distribution
+        fn _handle_subscription_payment(
+            ref self: ContractState,
+            subscriber: ContractAddress,
+            subscription_fee: u256
+        ) {
+            // Pull subscription fee from subscriber
+            let erc20 = IERC20Dispatcher { contract_address: self.strk_token.read() };
+            erc20.transfer_from(subscriber, get_contract_address(), subscription_fee);
+            
+            // Split fee: 10% to liquidity, 45% to platform, 45% to reward pool
+            let liquidity_fee = calculate_fee_share(subscription_fee, LIQUIDITY_FEE_BPS);  // 10%
+            let platform_fee = calculate_fee_share(subscription_fee, PLATFORM_FEE_BPS);    // 45% 
+            let reward_pool_share = calculate_fee_share(subscription_fee, DEVELOPER_FEE_BPS); // 45%
+            
+            // Verify split adds up to 100% (within rounding error)
+            let total_distributed = uint256_add(uint256_add(liquidity_fee, platform_fee), reward_pool_share);
+            assert(
+                subscription_fee >= total_distributed && 
+                subscription_fee - total_distributed <= u256 { low: 10, high: 0 }, // Allow for small rounding error
+                'Fee split error'
+            );
+            
+            // Transfer to vaults
+            erc20.transfer(self.liquidity_vault.read(), liquidity_fee);
+            erc20.transfer(self.marketplace_vault.read(), platform_fee);
+            
+            // Add to reward pool
+            self.reward_pool_strk.write(uint256_add(self.reward_pool_strk.read(), reward_pool_share));
+        }
+    }
+
+    #[abi(embed_v0)]
+    impl MarketplaceSubscriptionImpl of common::interfaces::IMarketplaceSubscription<ContractState> {
+        // Core functionality
+        fn subscribe(ref self: ContractState) {
+            let caller = get_caller_address();
+            let now = get_block_timestamp();
+            
+            // Get price - use oracle if price_usd_micros is set, otherwise use fallback
+            let cfg = self.sub_fee_cfg.read();
+            let sub_fee = if cfg.price_usd_micros.low != 0 || cfg.price_usd_micros.high != 0 {
+                MarketplaceSubscriptionInternalImpl::_usd_to_strk(@self, cfg)
+            } else {
+                self.sub_fee_strk.read()
+            };
+            
+            // Reject if both STRK and USD prices are zero
+            assert(!sub_fee.is_zero(), 'ERR_ZERO_FEE');
+            
+            // Handle payment processing with 45/45/10 fee distribution
+            MarketplaceSubscriptionInternalImpl::_handle_subscription_payment(
+                ref self,
+                caller,
+                sub_fee
+            );
+            
+            // Set expiry - use max of current time or existing expiry
+            let base = max(now, self.subscription_expiry.read(caller));
+            let expiry = base + self.epoch_length_secs.read();
+            self.subscription_expiry.write(caller, expiry);
+            
+            self.emit(Event::Subscribed(Subscribed { user: caller, expiry }));
+        }
+
+        fn record_download(ref self: ContractState, wallet: ContractAddress, component_id: u64) {
+            // Only registry can call this
+            assert(get_caller_address() == self.component_registry.read(), 'Registry only');
+            
+            let current_epoch = self.epoch_id.read();
+            
+            // Skip if already seen in this epoch
+            if self.seen_this_epoch.read((current_epoch, wallet, component_id)) {
+                return;
+            }
+
+            // Check if the component is free by querying the registry
+            let registry = IComponentRegistryExternalDispatcher { 
+                contract_address: self.component_registry.read() 
+            };
+            // Convert u64 to u128 for registry interface
+            let is_free = registry.is_free(component_id.into());
+            
+            // Check if user subscription is valid (only for non-free components)
+            if !is_free {
+                // For paid components, check if user has a valid subscription
+                assert(
+                    self.subscription_expiry.read(wallet) > get_block_timestamp(),
+                    'Subscription required'
+                );
+            }
+            
+            // Check if this is first time for this wallet+component
+            let is_first_time = !self.first_time.read((wallet, component_id));
+            
+            // Calculate weight bonus
+            let weight: u128 = if is_first_time {
+                self.first_time.write((wallet, component_id), true);
+                self.new_user_bonus.read().into()
+            } else {
+                1
+            };
+            
+            // Mark as seen and update weighted downloads
+            self.seen_this_epoch.write((current_epoch, wallet, component_id), true);
+            let current_weight = self.weighted_dl.read((current_epoch, component_id));
+            self.weighted_dl.write((current_epoch, component_id), current_weight + weight);
+            
+            self.emit(Event::DownloadRecorded(DownloadRecorded { 
+                user: wallet, 
+                component_id: component_id.into(), 
+                weight 
+            }));
+        }
+
+        fn start_new_epoch(ref self: ContractState) {
+            let now = get_block_timestamp();
+            let epoch_start = self.epoch_start_ts.read();
+            let min_end_time = epoch_start + self.epoch_length_secs.read() + self.grace_window_secs.read();
+            
+            // Ensure current epoch plus grace period has passed
+            assert(now >= min_end_time, 'Current epoch still active');
+            
+            let current_epoch = self.epoch_id.read();
+            let reward_pool = self.reward_pool_strk.read();
+            
+            // If no rewards to distribute, just start new epoch
+            if reward_pool.low == 0 && reward_pool.high == 0 {
+                self.epoch_id.write(current_epoch + 1);
+                self.epoch_start_ts.write(now);
+                
+                self.emit(Event::EpochStarted(EpochStarted {
+                    epoch_id: current_epoch + 1,
+                    start_ts: now
+                }));
+                
+                return;
+            }
+            
+            // Get component registry to find component owners
+            let registry = IComponentRegistryExternalDispatcher { 
+                contract_address: self.component_registry.read() 
+            };
+            
+            // Setup token dispatcher for transfers
+            let erc20 = IERC20Dispatcher { contract_address: self.strk_token.read() };
+            
+            // First pass: calculate total_sqrt_sum
+            let mut total_sqrt_sum: u128 = 0;
+            let mut component_id: u64 = 1;
+            
+            // We'll use a reasonable maximum to prevent infinite loops 
+            // In a production system this would need to be more sophisticated
+            let max_components: u64 = 1000;
+            
+            // Calculate the sum of square roots of all weights
+            loop {
+                if component_id > max_components {
+                    break;
+                }
+                
+                let weight = self.weighted_dl.read((current_epoch, component_id));
+                if weight > 0 {
+                    // Apply square root dampening
+                    let sqrt_weight = sqrt_u128(weight);
+                    total_sqrt_sum += sqrt_weight;
+                }
+                
+                component_id += 1;
+            }
+            
+            // Skip distribution if no downloads were recorded
+            if total_sqrt_sum == 0 {
+                self.epoch_id.write(current_epoch + 1);
+                self.epoch_start_ts.write(now);
+                self.reward_pool_strk.write(u256 { low: 0, high: 0 });
+                
+                self.emit(Event::EpochStarted(EpochStarted {
+                    epoch_id: current_epoch + 1,
+                    start_ts: now
+                }));
+                
+                return;
+            }
+            
+            // Second pass: distribute rewards
+            let mut total_distributed = u256 { low: 0, high: 0 };
+            component_id = 1;
+            
+            // Distribute rewards proportionally based on sqrt weights
+            loop {
+                if component_id > max_components {
+                    break;
+                }
+                
+                let weight = self.weighted_dl.read((current_epoch, component_id));
+                if weight > 0 {
+                    // Try to get the component
+                    let component = registry.get_component(component_id.into());
+                    
+                    // Only distribute if component exists and has a valid seller
+                    if component.id == component_id && !component.seller.is_zero() {
+                        // Calculate component's share based on sqrt weight
+                        let sqrt_weight = sqrt_u128(weight);
+                        let share_numerator = reward_pool * u256 { low: sqrt_weight, high: 0 };
+                        let share_denominator = u256 { low: total_sqrt_sum, high: 0 };
+                        
+                        // Calculate share using integer division (truncating)
+                        let share = share_numerator / share_denominator;
+                        
+                        // Transfer reward to component seller
+                        if share.low > 0 || share.high > 0 {
+                            erc20.transfer(component.seller, share);
+                            total_distributed = uint256_add(total_distributed, share);
+                            
+                            // Emit event for the reward payment
+                            self.emit(Event::RewardPaid(RewardPaid {
+                                component_id: component_id.into(),
+                                seller: component.seller,
+                                amount: share,
+                                epoch_id: current_epoch
+                            }));
+                        }
+                    }
+                }
+                
+                component_id += 1;
+            }
+            
+            // Start new epoch
+            self.epoch_id.write(current_epoch + 1);
+            self.epoch_start_ts.write(now);
+            
+            // Any undistributed rewards (due to rounding or failed transfers) are reset
+            self.reward_pool_strk.write(u256 { low: 0, high: 0 });
+            
+            self.emit(Event::EpochStarted(EpochStarted { 
+                epoch_id: current_epoch + 1, 
+                start_ts: now 
+            }));
+        }
+
+        fn set_subscription_fee(ref self: ContractState, new_fee: u256) {
+            // Only owner can call this
+            assert(get_caller_address() == self.owner.read(), 'Owner only');
+            self.sub_fee_strk.write(new_fee);
+        }
+
+        fn set_subscription_fee_usd(ref self: ContractState, price_usd_micros: u256, price_feed_key: felt252) {
+            // Only owner can call this
+            assert(get_caller_address() == self.owner.read(), 'Owner only');
+            self.sub_fee_cfg.write(OraclePriceCfg { 
+                price_usd_micros: price_usd_micros,
+                price_feed_key: price_feed_key 
+            });
+        }
+
+        fn set_oracle_max_staleness(ref self: ContractState, new_staleness: u64) {
+            // Only owner can call this
+            assert(get_caller_address() == self.owner.read(), 'Owner only');
+            self.oracle_max_staleness.write(new_staleness);
+        }
+
+        fn set_owner(ref self: ContractState, new_owner: ContractAddress) {
+            // Only current owner can change owner
+            assert(get_caller_address() == self.owner.read(), 'Owner only');
+            assert(!new_owner.is_zero(), 'Invalid owner address');
+            
+            // For backwards compatibility, just do a direct transfer
+            let previous_owner = self.owner.read();
+            self.owner.write(new_owner);
+            
+            // Emit the transfer event
+            self.emit(Event::OwnershipTransferred(OwnershipTransferred {
+                previous_owner: previous_owner,
+                new_owner: new_owner,
+            }));
+        }
+        
+        // Implement the two-step ownership transfer pattern
+        fn transfer_ownership(ref self: ContractState, new_owner: ContractAddress) {
+            // Only current owner can initiate transfer
+            assert(get_caller_address() == self.owner.read(), 'Owner only');
+            assert(!new_owner.is_zero(), 'Invalid owner address');
+            
+            // Set the pending owner
+            self.pending_owner.write(new_owner);
+            
+            // Emit the transfer started event
+            self.emit(Event::OwnershipTransferStarted(OwnershipTransferStarted {
+                previous_owner: self.owner.read(),
+                new_owner: new_owner,
+            }));
+        }
+        
+        fn accept_ownership(ref self: ContractState) {
+            let caller = get_caller_address();
+            let pending_owner = self.pending_owner.read();
+            
+            // Only pending owner can accept
+            assert(caller == pending_owner, 'Not pending owner');
+            assert(!caller.is_zero(), 'Invalid owner address');
+            
+            // Transfer ownership
+            let previous_owner = self.owner.read();
+            self.owner.write(caller);
+            self.pending_owner.write(0.try_into().unwrap()); // Clear pending owner
+            
+            // Emit the transfer completed event
+            self.emit(Event::OwnershipTransferred(OwnershipTransferred {
+                previous_owner: previous_owner,
+                new_owner: caller,
+            }));
+        }
+
+        // View functions
+        fn is_subscribed(self: @ContractState, user: ContractAddress) -> bool {
+            self.subscription_expiry.read(user) > get_block_timestamp()
+        }
+        
+        fn get_subscription_expiry(self: @ContractState, user: ContractAddress) -> u64 {
+            self.subscription_expiry.read(user)
+        }
+        
+        fn get_subscription_fee(self: @ContractState) -> u256 {
+            let cfg = self.sub_fee_cfg.read();
+            if cfg.price_usd_micros.low != 0 || cfg.price_usd_micros.high != 0 {
+                MarketplaceSubscriptionInternalImpl::_usd_to_strk(self, cfg)
+            } else {
+                self.sub_fee_strk.read()
+            }
+        }
+        
+        fn get_price_usd(self: @ContractState) -> u256 {
+            // Return the USD price configuration
+            self.sub_fee_cfg.read().price_usd_micros
+        }
+        
+        fn get_current_epoch(self: @ContractState) -> u64 {
+            self.epoch_id.read()
+        }
+        
+        fn get_reward_pool(self: @ContractState) -> u256 {
+            self.reward_pool_strk.read()
+        }
+        
+        fn get_epoch_info(self: @ContractState) -> (u64, u64, u64) {
+            (self.epoch_id.read(), self.epoch_start_ts.read(), self.epoch_length_secs.read())
+        }
+        
+        fn get_owner(self: @ContractState) -> ContractAddress {
+            self.owner.read()
+        }
+
+        // Added in v1.1.0 - Return contract version
+        fn get_version(self: @ContractState) -> felt252 {
+            self.version.read()
+        }
+    }
+} 

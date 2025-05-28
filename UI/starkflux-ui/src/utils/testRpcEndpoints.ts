@@ -2,9 +2,9 @@
 import { RpcProvider } from 'starknet';
 
 const SEPOLIA_RPC_ENDPOINTS = [
-  'https://starknet-sepolia.g.alchemy.com/starknet/version/rpc/v0_8/NswtRE2tY_TzSgg0iTj3Kd61wAKacsZb', // Your Alchemy endpoint
-  'https://starknet-sepolia.public.blastapi.io',
-  'https://free-rpc.nethermind.io/sepolia-juno',
+  import.meta.env.VITE_RPC_URL || 'https://starknet-sepolia.g.alchemy.com/starknet/version/rpc/v0_8', // Use env variable
+  'https://starknet-sepolia.public.blastapi.io/rpc/v0_8',
+  'https://free-rpc.nethermind.io/sepolia-juno/v0_8',
   'https://starknet-sepolia.lava.build',
   'https://rpc.starknet-sepolia.lava.build',
 ];
@@ -38,4 +38,4 @@ export const testRpcEndpoints = async (): Promise<{ working: string[], failed: s
 };
 
 // Export the recommended endpoint (your Alchemy endpoint)
-export const RECOMMENDED_RPC_ENDPOINT = 'https://starknet-sepolia.g.alchemy.com/starknet/version/rpc/v0_8/NswtRE2tY_TzSgg0iTj3Kd61wAKacsZb'; 
+export const RECOMMENDED_RPC_ENDPOINT = import.meta.env.VITE_RPC_URL || 'https://starknet-sepolia.g.alchemy.com/starknet/version/rpc/v0_8'; 

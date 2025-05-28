@@ -24,9 +24,9 @@ export const useTransactionStatus = (hash: string | null) => {
       setError(null);
       
       try {
-        // Create RPC provider for checking transaction status
+        // Create a provider to check transaction status
         const provider = new RpcProvider({
-          nodeUrl: 'https://starknet-sepolia.g.alchemy.com/starknet/v0_8/NswtRE2tY_TzSgg0iTj3Kd61wAKacsZb'
+          nodeUrl: import.meta.env.VITE_RPC_URL || 'https://starknet-sepolia.g.alchemy.com/starknet/v0_8'
         });
         
         // Get transaction receipt

@@ -22,8 +22,8 @@ export const ACCESS_FLAGS = {
   MKT_SUB: 4,
 } as const;
 
-// RPC Configuration - Using Alchemy to avoid CORS issues
-export const RPC_URL = 'https://starknet-sepolia.g.alchemy.com/starknet/version/rpc/v0_8/NswtRE2tY_TzSgg0iTj3Kd61wAKacsZb';
+// RPC Configuration - Using environment variable
+export const RPC_URL = import.meta.env.VITE_RPC_URL || 'https://starknet-sepolia.g.alchemy.com/starknet/version/rpc/v0_8';
 
 // Account info for development and testing
 export const DEVELOPMENT_ACCOUNT = {

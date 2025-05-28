@@ -1,0 +1,55 @@
+StarkFlux Source Available License v1.0
+
+Copyright (c) 2025 StarkFlux Team
+
+IMPORTANT: This is NOT an Open Source license. This is a Source Available license 
+that allows viewing and limited use of the source code.
+
+1. DEFINITIONS
+   "Software" means the StarkFlux marketplace platform and associated documentation.
+   "Commercial Use" means any use of the Software for direct or indirect financial gain.
+
+2. GRANT OF RIGHTS
+   Subject to the terms of this license, you are granted the right to:
+   a) View and study the source code
+   b) Use the Software for personal, educational, or evaluation purposes
+   c) Create modifications for personal use or contribution back to the project
+   d) Deploy the Software for testing and development purposes only
+
+3. RESTRICTIONS
+   You may NOT:
+   a) Use the Software for Commercial Use without explicit written permission
+   b) Distribute, sublicense, or sell copies of the Software
+   c) Remove or alter any proprietary notices or labels
+   d) Use the Software to create a competing product or service
+   e) Deploy the Software in a production environment for commercial purposes
+
+4. CONTRIBUTIONS
+   Any contributions you make to this project are licensed under the same terms
+   and become part of the Software. By contributing, you grant us the right to
+   use your contributions for any purpose, including Commercial Use.
+
+5. HACKATHON EXCEPTION
+   Judges, mentors, and participants of the hackathon where this project is
+   submitted are granted additional rights to evaluate, test, and provide
+   feedback on the Software.
+
+6. FUTURE LICENSING
+   The copyright holders reserve the right to release the Software under
+   alternative license terms or to grant additional permissions at their
+   sole discretion.
+
+7. NO WARRANTY
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+
+8. LIMITATION OF LIABILITY
+   IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+   DAMAGES OR OTHER LIABILITY ARISING FROM THE USE OF THE SOFTWARE.
+
+For commercial licensing inquiries, please contact: andres.cano@reapstudios.com
+
+---
+Note: This license is designed to protect the commercial interests of the
+StarkFlux team while allowing hackathon evaluation and community feedback. 

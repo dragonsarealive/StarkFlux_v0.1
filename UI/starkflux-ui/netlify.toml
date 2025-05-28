@@ -1,4 +1,5 @@
 [build]
+  base = "UI/starkflux-ui"
   command = "npm run build"
   publish = "dist"
 
@@ -11,4 +12,4 @@
   status = 200
 
 [context.production.environment]
-  VITE_STARKNET_ALCHEMY_KEY = "NswtRE2tY_TzSgg0iTj3Kd61wAKacsZb" 
+  NODE_ENV = "production" 

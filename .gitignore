@@ -1,94 +1,111 @@
-# Artifacts folder - contains sensitive data not for GitHub
-/artifacts/
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Testing
+coverage/
+*.coverage
+.coverage
+
+# Production builds
+build/
+dist/
+target/
+out/
 
 # Environment files
 .env
 .env.local
-.env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
 *.env
 
-# Private keys and credentials
-*.key
-*.pem
-*.p12
-*.pfx
-keystore.json
-*_keystore.json
-
-# Deployment specific files
-deployment_addresses*.txt
-deployment_info*.txt
-*_deployment_info.txt
-updated_deployment_addresses.txt
-final_deployment_info.txt
-starknet_sepolia_deployment_checklist*.md
-
-# Build outputs
-target/
-dist/
-build/
-out/
-
-# Node modules
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
-
-# IDE files
+# IDE and editor files
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 .DS_Store
+Thumbs.db
+.cursor/
+.cursorrules
 
 # Logs
 logs/
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
 
-# Testing
-coverage/
-.nyc_output/
-
-# Temporary files
-tmp/
-temp/
-*.tmp
-*.temp
+# Package manager files
+.npm
+.yarn-integrity
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
 
 # Cairo/Starknet specific
 *.sierra.json
 *.casm.json
 *.contract_class.json
-*.compiled_contract_class.json
+target/
+.snfoundry_cache/
+
+# Scarb
+Scarb.lock
 
 # Python
 __pycache__/
 *.py[cod]
 *$py.class
+*.so
 .Python
-venv/
 env/
-starknet_env/
+venv/
+ENV/
+
+# Wallet and key files
+*.keystore
+*.json.keystore
+keystore/
+wallets/
+.starkli-wallets/
+
+# Private keys and secrets
+*.pem
+*.key
+private_key*
+secret*
 
 # OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
-desktop.ini
 
-# Backup files
-*.bak
-*.backup
-*_backup/
+# Temporary files
+*.tmp
+*.temp
+*.cache
+.cache/
+
+# Build artifacts
+artifacts/
+cache/
+typechain/
+typechain-types/
+
+# Debug files
+*.stackdump
 
 # Local configuration
-local.config
-*.local.json
-
-# Downloaded files
-scarb-latest.zip
-starkli-x86_64-unknown-linux-gnu.tar.gz
-
-# Private keys
-starkli_private_key.txt 
+local.config.*
+config.local.* 
