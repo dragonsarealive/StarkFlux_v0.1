@@ -20,7 +20,7 @@ const Footer: React.FC = () => {
           </Text>
           <HStack spacing={4}>
             <Link
-              href="https://github.com/starkflux"
+              href="https://github.com/dragonsarealive/StarkFlux_v0.1"
               isExternal
               fontSize="sm"
               color={textColor}
