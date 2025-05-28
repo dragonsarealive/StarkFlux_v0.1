@@ -50,7 +50,7 @@ starkflux/
 
 1. Clone the repository:
 ```bash
-git clone [hhttps://github.com/dragonsarealive/StarkFlux_v0.1.git](https://github.com/dragonsarealive/StarkFlux_v0.1.git)
+git clone hhttps://github.com/dragonsarealive/StarkFlux_v0.1.git
 cd starkflux
 ```
 
