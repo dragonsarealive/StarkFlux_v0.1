@@ -1,6 +1,6 @@
 [build]
   base = "UI/starkflux-ui"
-  command = "npm run build"
+  command = "npm install && npx vite build"
   publish = "dist"
 
 [build.environment]
