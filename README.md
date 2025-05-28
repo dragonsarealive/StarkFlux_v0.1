@@ -17,16 +17,28 @@ StarkFlux is a decentralized marketplace for StarkNet developer components, enab
 ## 📁 Project Structure
 
 ```
-starkflux/
-├── UI/                      # Frontend application
-│   └── starkflux-ui/       # React + TypeScript UI
-├── packages/               # Smart contracts
-│   ├── common/            # Shared interfaces and types
-│   ├── component_registry/ # Main marketplace contract
-│   ├── identity_registry/  # Developer identity management
-│   ├── dev_subscription/   # Developer subscription system
-│   └── marketplace_subscription/ # Global subscription system
-└── memory-bank/           # Project documentation
+StarkFlux_v0.1/
+├── UI/                                    # Frontend application
+│   ├── StarkFlux_UI_Development_Guide.md  # UI development documentation
+│   └── starkflux-ui/                     # React + TypeScript UI
+├── packages/                             # Smart contracts
+│   ├── common/                          # Shared interfaces and types
+│   ├── component_registry/              # Main marketplace contract
+│   ├── dev_subscription/                # Developer subscription system
+│   ├── identity_registry/               # Developer identity management
+│   └── marketplace_subscription/        # Global subscription system
+├── src/                                 # (Additional source files)
+├── .env.example                         # Environment variables example
+├── .gitignore                          # Git ignore rules
+├── CHANGELOG.md                        # Project changelog
+├── CONTRIBUTING.md                     # Contribution guidelines
+├── DEPLOYMENT.md                       # Deployment instructions
+├── LICENSE                             # Source Available License
+├── README.md                           # Project documentation
+├── Scarb.lock                          # Cairo dependencies lock
+├── Scarb.toml                          # Cairo project config
+├── package.json                        # Node.js project config
+└── package-lock.json                   # Node.js dependencies lock
 ```
 
 ## 🛠️ Technology Stack
