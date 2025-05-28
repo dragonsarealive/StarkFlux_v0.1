@@ -68,20 +68,29 @@ StarkFlux operates on a comprehensive 4-contract ecosystem deployed on StarkNet 
 ```mermaid
 graph TD
     A[Identity Registry] --> B[Component Registry]
-    B --> C[Dev Subscription]
-    B --> D[Marketplace Subscription]
-    E[Pragma Oracle] --> C
+    A --> C[Dev Subscription]
+    A --> D[Marketplace Subscription]
+    B --> D
+    E[Pragma Oracle] --> B
+    E --> C
     E --> D
     F[STRK Token] --> B
     F --> C
     F --> D
+    G[Liquidity Vault] --> D
+    H[Marketplace Vault] --> D
 ```
 
-**Flow Description:**
+**Corrected Flow Description:**
 1. **Developer Registration**: Users register through Identity Registry to get a Developer ID
 2. **Component Upload**: Registered developers upload components to Component Registry
-3. **Access Control**: Component Registry verifies access through subscription contracts
+3. **Access Verification**: 
+   - Component Registry validates developer registration via Identity Registry
+   - Marketplace Subscription checks component access flags via Component Registry
+   - Dev Subscription verifies developer ownership via Identity Registry
 4. **Payment Processing**: All payments handled via STRK token with automatic fee distribution
+5. **Download Recording**: Component Registry forwards download records to Marketplace Subscription (if configured)
+6. **Oracle Integration**: All subscription contracts use Pragma Oracle for USD to STRK conversion
 
 ### 💰 Monetization Models & Fee Distribution
 
@@ -125,11 +134,21 @@ developer_reward = download_count × base_reward_per_download
 
 ### 📊 Technical Specifications
 
-- **Storage Pattern**: `LegacyMap<felt252, T>` for efficient key-value storage
+- **Architecture Pattern**: Hub-and-spoke model with Identity Registry as the central authority
+- **Storage Pattern**: `LegacyMap<felt252, T>` for efficient key-value storage across all contracts
 - **Access Control**: Multi-contract verification with proper role management
+- **Subscription Model**: Independent subscription contracts with shared identity verification
+- **Oracle Integration**: Real-time USD pricing via Pragma Oracle in all monetized contracts
 - **Gas Optimization**: Batch operations and efficient state reading
 - **Event System**: Comprehensive event emission for indexers and UI
 - **Upgrade Safety**: Immutable core logic with configurable parameters
+
+**Key Architectural Insights:**
+- Identity Registry serves as the single source of truth for developer identities
+- Component Registry operates independently but validates through Identity Registry
+- Subscription contracts query Identity Registry directly for developer verification
+- No direct interaction between Component Registry and Dev Subscription contracts
+- Marketplace Subscription acts as download tracker when configured in Component Registry
 
 ## 🚦 Getting Started
 
@@ -160,19 +179,19 @@ cp .env.example .env.local
 ```
 
 4. Start the development server:
-```bash
+   ```bash
 npm run dev
-```
+   ```
 
 ### Smart Contract Development
 
 1. Navigate to the packages directory:
-```bash
+   ```bash
 cd packages
-```
+   ```
 
 2. Build contracts:
-```bash
+   ```bash
 scarb build
 ```
 
